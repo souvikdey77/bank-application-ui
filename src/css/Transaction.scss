@@ -1,0 +1,31 @@
+.app-transaction-container{
+    text-align: left;
+    .transaction-details{
+        #transactions-history{
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #transactions-history td, #transactions-history th {
+            border: 1px solid #ddd;
+            padding: 8px;
+          }
+        #transactions-history td{
+            text-align: center;
+          }
+        #transactions-history th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: center;
+            background-color: brown;
+            color: white;
+          }
+    }
+    .link-home-page{
+        float: right;
+        .btn {
+            font-size: 1.6rem;
+            margin: 10px 0;
+          }
+    }
+   
+}
