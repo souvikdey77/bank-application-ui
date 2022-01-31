@@ -1,39 +1,49 @@
+import axios from "axios";
 import React, { useState , useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { connect } from "react-redux";
+import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
-import { signInUser } from '../actions/action-creator';
 import "../css/Form.scss";
 
 const Signin = () => {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
+  const [token, setToken] = useState('');
   const [errorMessage, setErrorMessage] = useState({
     signInError: '',
   });
-  const dispatch = useDispatch();
-  const handleSignIn = () => {
-    if (userName === '' || password === '') {
+  const navigate = useNavigate();
+  const handleSignIn = (event) => {
+    event.preventDefault();
+    if (userName !== '' && password !== '') {
+      axios.post('http://localhost:8080/api/v1/signin',{
+        userName,
+        password
+      }).then((response) => {
+          setToken(response.data.jwtToken);
+      })
+      .catch((error) => {
+        setErrorMessage({
+          signInError: 'Invalid Credentials'
+        })
+      })
+    } else {
       setErrorMessage({
         signInError: "All the fields are mandatory",
       });
-    } else {
-      //login
-      dispatch(signInUser(userName, password))
-      .then((response) => {
-        if(response){
-          this.history.push({
-            pathname: `/home`,
-            state: {token : response}
-          })
-        }else{
-          setErrorMessage({
-            signInError: 'Kindly check username or password!!'
-          })
-        }
-      })
     }
   };
+
+  useEffect(() => {
+    if(token){
+      navigate('/home' , {
+        state: {
+          token : token,
+          userName : userName
+        }
+      });
+    }
+
+  },[token])
 
   const handleUsernameInput = (event) => {
     setUserName(event.target.value);
@@ -57,6 +67,7 @@ const Signin = () => {
             </label>
             <input
               type="text"
+              value={userName}
               placeholder="Enter Username"
               name="userName"
               onChange={handleUsernameInput}
@@ -67,11 +78,11 @@ const Signin = () => {
             </label>
             <input
               type="password"
+              value={password}
               placeholder="Enter Password"
               name="password"
               onChange={handlePasswordInput}
             ></input>
-
             <button type="submit">Login</button>
             <Link to="/signup" className="btn">Signup</Link>
           </div>
@@ -81,4 +92,4 @@ const Signin = () => {
   );
 };
 
-export default connect()(Signin);
+export default Signin;

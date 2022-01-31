@@ -1,8 +1,6 @@
+import axios from "axios";
 import React, { useState } from "react";
-import { connect } from "react-redux";
-import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { signUpUser } from '../actions/action-creator';
 import "../css/Form.scss";
 
 const Signup = () => {
@@ -15,10 +13,9 @@ const Signup = () => {
     registrationError: '',
   });
   const [successMessage, setSuccessMessage] = useState({
-    message : ''
+    message: ''
   })
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const dispatch = useDispatch();
 
   const handleFirstName = (event) => {
     setFirstName(event.target.value);
@@ -29,7 +26,7 @@ const Signup = () => {
   };
 
   const handleUserName = (event) => {
-    setEmail(event.target.value);
+    setUserName(event.target.value);
   };
 
   const handlePassword = (event) => {
@@ -42,37 +39,36 @@ const Signup = () => {
 
   const registerUser = (event) => {
     event.preventDefault();
-    if (
-      firstName === "" ||
-      lastName === "" ||
-      userName === "" ||
-      password === "" ||
-      confirmPassword === ""
-    ) {
+    if (firstName !== '' && lastName !== '' && userName !== '' && password !== '' && confirmPassword !== '') {
+      if (password !== confirmPassword) {
+        setErrorMessage({
+          registrationError: "Password and ConfirmPassword should exactly match",
+        });
+      } else {
+        axios.post('http://localhost:8080/api/v1/signup', {
+          firstName,
+          lastName,
+          userName,
+          password
+        }).then((response) => setSuccessMessage({
+          message: `Registration is successful!! Your account number is ${response.data.accountNumber}`
+        }));
+        setErrorMessage({
+          registrationError: ''
+        })
+        setIsSubmitted(true);
+        setUserName('');
+        setPassword('');
+        setFirstName('');
+        setLastName('');
+        setConfirmPassword('');
+      }
+    } else {
       setErrorMessage({
         registrationError: "All the fields are mandatory",
       });
-    } else if (password !== confirmPassword) {
-      setErrorMessage({
-        registrationError: "Password and ConfirmPassword should exactly match",
-      });
-    } else {
-      setIsSubmitted(true);
-      dispatch(signUpUser(firstName,lastName,userName,password))
-      .then((response) => {
-        if(response){
-          setSuccessMessage({
-            message : 'Registration Successful!!'
-          })
-        }else{
-          setErrorMessage({
-            registrationError: 'Please validate the inputs!!'
-          })
-        }
-      })
     }
-  };
-
+  }
   return (
     <div className="app-form-container">
       <h2>HDFCA Banking App</h2>
@@ -81,12 +77,16 @@ const Signup = () => {
           {errorMessage && errorMessage.registrationError && (
             <p className="errorMessage">{errorMessage.registrationError}</p>
           )}
+          {successMessage && successMessage.message && (
+            <p className="successMessage">{successMessage.message}</p>
+          )}
           <div className="app-form-details">
             <label htmlFor="firstName">
               <b>FirstName</b>
             </label>
             <input
               type="text"
+              value={firstName}
               placeholder="Enter firstname"
               name="firstname"
               onChange={handleFirstName}
@@ -97,16 +97,18 @@ const Signup = () => {
             </label>
             <input
               type="text"
+              value={lastName}
               placeholder="Enter Lastname"
               name="lastname"
               onChange={handleLastName}
             ></input>
 
-            <label htmlFor="email">
+            <label htmlFor="userName">
               <b>Username</b>
             </label>
             <input
               type="text"
+              value={userName}
               placeholder="Enter UserName"
               name="userName"
               onChange={handleUserName}
@@ -117,6 +119,7 @@ const Signup = () => {
             </label>
             <input
               type="password"
+              value={password}
               placeholder="Enter Password"
               name="psw"
               onChange={handlePassword}
@@ -127,6 +130,7 @@ const Signup = () => {
             </label>
             <input
               type="password"
+              value={confirmPassword}
               placeholder="Re Enter Password"
               name="confirm password"
               onChange={handleConfirmPassword}
@@ -142,4 +146,4 @@ const Signup = () => {
   );
 };
 
-export default connect()(Signup);
+export default Signup;

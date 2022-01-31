@@ -7,6 +7,12 @@ b{
     }
     text-align: center;
     .app-form {
+      .successMessage{
+        color: green;
+      }
+      .errorMessage{
+        color: red;
+      }
       .app-form-details{
         input[type=text], input[type=password] {
           width: 100%;
